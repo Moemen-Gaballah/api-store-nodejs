@@ -1,0 +1,8 @@
+// migrations => node-pg-migrate
+https://www.npmjs.com/package/node-pg-migrate
+npm run migrate up
+
+// dotenv
+https://www.npmjs.com/package/dotenv
+
+
