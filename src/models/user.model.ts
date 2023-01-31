@@ -1,38 +1,113 @@
 import client from "../config/database";
 
-export const getUser = async (email, password) => {
+// export default class UserModel {
+export class UserModel {
+    email: string|null = null;
+    username: string|null = null;
+    password: string|null = null;
 
-    return await client.query("select * from users WHERE email = $1 and password = $2 limit = 1", [
-        email,
-        hashPassword(password),
-    ]);
-    // return result;
+    // public constructor(email: string, password: string|null = null, username: string|null = null) {
+    //     this.email = email;
+    //     this.password = password;
+    //     this.username = username;
+    // }
+
+    public login(email: any, password: string): string {
+        // @ts-ignore
+        return client.query("select * from users WHERE email = $1 and password = $2 limit = 1", [
+            email,
+            this.hashPassword(password),
+        ]);
+    }
+
+    public isEmailExist(email: string) {
+        // @ts-ignore
+        const result = client.query("select * from users WHERE email = $1 limit = 1", [
+            email
+        ]);
+
+        return result;
+    }
+
+    public register(email: string, password: string, username: string) {
+        // @ts-ignore
+        const result = client.query("INSERT INTO users (username, email, password) VALUES ($1, $2, $3)", [
+            username,
+            email,
+            this.hashPassword(password),
+        ]);
+
+        return result;
+    }
+
+    public hashPassword(password: string) {
+        return crypto.pbkdf2Sync(password, process.env.PASSWORD_SALT!, 42, 64, 'sha512').toString('hex');
+    }
+
 }
 
-export const isEmailExist = async (email) => {
 
-    const result = await client.query("select * from users WHERE email = $1 limit = 1", [
-        email
-    ]);
+// export async function getUser(email, password){
+//
+//     return await client.query("select * from users WHERE email = $1 and password = $2 limit = 1", [
+//         email,
+//         hashPassword(password),
+//     ]);
+//     // return result;
+// }
+//
+// export const getUser = async (email, password) => {
+//
+//     return await client.query("select * from users WHERE email = $1 and password = $2 limit = 1", [
+//         email,
+//         hashPassword(password),
+//     ]);
+//     // return result;
+// }
 
-    return result;
-}
+// export const isEmailExist = async (email) => {
+//
+//     const result = await client.query("select * from users WHERE email = $1 limit = 1", [
+//         email
+//     ]);
+//
+//     return result;
+// }
 
-export const storeUser = async (username ,email, password) => {
+// export async function isEmailExist(email = 'moemen@gmail.com'){
+//
+//     console.log(email, 'email');
+//     const result = await client.query("select * from users WHERE email = $1 limit = 1", [
+//         email
+//     ]);
+//
+//     return result;
+// }
 
-    const result = await client.query("INSERT INTO users (username, email, password) VALUES ($1, $2, $3)", [
-        username,
-        email,
-        hashPassword(password),
-    ]);
+// export const storeUser = async (username ,email, password) => {
+//
+//     const result = await client.query("INSERT INTO users (username, email, password) VALUES ($1, $2, $3)", [
+//         username,
+//         email,
+//         hashPassword(password),
+//     ]);
+//
+//     return result;
+// }
 
-    return result;
-}
-
-
-const hashPassword = (password: string): string =>  {
-    return crypto.pbkdf2Sync(password, process.env.PASSWORD_SALT!, 42, 64, 'sha512').toString('hex');
-}
+// export async function storeUser(username ,email, password) {
+//     const result = await client.query("INSERT INTO users (username, email, password) VALUES ($1, $2, $3)", [
+//         username,
+//         email,
+//         hashPassword(password),
+//     ]);
+//
+//     return result;
+// }
+//
+// const hashPassword = (password: string): string =>  {
+//     return crypto.pbkdf2Sync(password, process.env.PASSWORD_SALT!, 42, 64, 'sha512').toString('hex');
+// }
 
 
 import bcrypt from 'bcrypt'
@@ -89,10 +164,5 @@ import crypto from "crypto";
 // const generateToken = async () => {
 //
 // }
-//
-module.exports = {
-    getUser,
-    storeUser,
-    // register,
-    // register,
-}
+
+module.exports = UserModel;
